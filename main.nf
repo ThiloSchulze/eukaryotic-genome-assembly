@@ -14,7 +14,7 @@ rawreads = Channel
 
 def helpMessage() {
 log.info"""
-  Start: 
+  Start:
   nextflow run . --input '/full/path/*{R1,2}.fastq'
 
   Options:
@@ -22,6 +22,11 @@ log.info"""
 
   """.stripIndent()
 }
+
+// Check whether the provided path exists
+def inputPath = new File(params.input)
+
+assert inputPath.exists() : "Provided input path, $params.input, not found"
 
 // Display a help message upon request
 if ( params.help ) exit 0, helpMessage()
@@ -67,7 +72,7 @@ publishDir "${params.output}/trimmed_reads", mode: 'copy'
   path "*.{zip,html}"
   path "*.fq.gz"
 
-  script: 
+  script:
 
   flagsTrimming = "--fastqc --gzip --quality $params.trim_quality \
 --length $params.trim_min_length --cores $task.cpus"
@@ -89,7 +94,7 @@ publishDir "${params.output}/trimmed_reads", mode: 'copy'
   $commandTrimming
   echo "$commandTrimming" > 'trim_galore_command.txt'
   """
-} 
+}
 
 
 process assembly {
