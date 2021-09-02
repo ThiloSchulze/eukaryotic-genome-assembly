@@ -10,7 +10,7 @@ of eukaryotic origin. Here is a brief summary of what is being executed:
 2. Adapter trimming ([Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 3. Trimmed reads quality control ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 4. _De novo_ whole genome assembly ([SPAdes](https://cab.spbu.ru/software/spades/))
-5. Assembly quality assessment ([QUAST](http://bioinf.spbau.ru/quast)
+5. Assembly quality assessment ([QUAST](http://bioinf.spbau.ru/quast))
 
 ### Installing Nextflow
 
