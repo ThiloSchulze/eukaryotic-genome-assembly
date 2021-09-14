@@ -3,3 +3,4 @@
 .command.*
 example_data/**
 work/**
+assembly_out/**

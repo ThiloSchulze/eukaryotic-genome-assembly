@@ -163,15 +163,15 @@ process trimming {
  * De novo assembly using the SPAdes assembler.
  */
 process assembly {
-  echo true
-  publishDir "${params.output}/assembly", mode: 'copy'
+  publishDir "${params.output}/spades_assembly", mode: 'copy'
 
   input:
   tuple val(name), path(trimmed_reads)
   val kmers
 
   output:
-  path "${name}_assembly" optional true
+  path "null_spades_out/*" optional true
+  path "null_spades_out/K*", type: 'dir', emit: 'contigs'
 
   script:
 
@@ -191,8 +191,32 @@ process assembly {
   """
 }
 
+process assemblyQualityAssessment {
+  publishDir "${params.output}/quast_quality_assessment", mode: 'copy'
+
+  input:
+  path contig_dirs
+
+  output:
+  path "*_quast_quality_assessment", type: 'dir'
+
+  script:
+  """
+  for contig_dir in $contig_dirs
+  do
+    mkdir -p "\$contig_dir"
+    quast.py\
+      --min-contig 100\
+      --threads 2\
+      --output-dir "\${contig_dir}_quast_quality_assessment"\
+      "\$contig_dir/final_contigs.fasta"
+  done
+  """
+}
+
 workflow {
   qualityControl(ch_rawReads)
   trimming(ch_rawReads)
-  assembly(trimming.out.trimmedReads, params.kmers) | view
+  assembly(trimming.out.trimmedReads, params.kmers)
+  assemblyQualityAssessment(assembly.out.contigs)
 }
