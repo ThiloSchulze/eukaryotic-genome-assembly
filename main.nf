@@ -109,19 +109,20 @@ process qualityControl {
   path "*fastqc.{html,zip}"
   path "fastqc_command.txt"
 
+  // rename 's/_fastqc\\.zip\$/_pre-trimming_fastqc.zip/' *_fastqc.zip
+  // rename 's/_fastqc\\.html\$/_pre-trimming_fastqc.html/' *_fastqc.html
+
   script:
   """
   fastqc_command="fastqc --threads ${task.cpus} --quiet $control"
   \$fastqc_command
   echo "\$fastqc_command" > 'fastqc_command.txt'
-  rename 's/_fastqc\\.zip\$/_pre-trimming_fastqc.zip/' *_fastqc.zip
-  rename 's/_fastqc\\.html\$/_pre-trimming_fastqc.html/' *_fastqc.html
   """
 }
 
 /*
  * Adapter trimming and using Trim Galore! Includes quality control of trimmed
- * adapters as well.
+ * adapters as well
  */
 process trimming {
   publishDir "${params.output}/trimmed_reads", mode: 'copy'
@@ -160,7 +161,7 @@ process trimming {
 }
 
 /*
- * De novo assembly using the SPAdes assembler.
+ * De novo assembly using the SPAdes assembler
  */
 process assembly {
   publishDir "${params.output}/spades_assembly", mode: 'copy'
@@ -191,6 +192,9 @@ process assembly {
   """
 }
 
+/*
+ * Genome assembly quality assessment using QUAST
+ */
 process assemblyQualityAssessment {
   publishDir "${params.output}/quast_quality_assessment", mode: 'copy'
 
@@ -200,23 +204,91 @@ process assemblyQualityAssessment {
   output:
   path "*_quast_quality_assessment", type: 'dir'
 
+  // "\${contig_dir}/final_contigs.fasta"
+
   script:
   """
   for contig_dir in $contig_dirs
   do
-    mkdir -p "\$contig_dir"
-    quast.py\
-      --min-contig 100\
-      --threads 2\
-      --output-dir "\${contig_dir}_quast_quality_assessment"\
-      "\$contig_dir/final_contigs.fasta"
+    if [ -f "\$contig_dir/final_contigs.fasta" ]
+    then
+      mkdir -p "\$contig_dir"
+      kmer="\${contig_dir:1}"
+      ln -s "\${contig_dir}/final_contigs.fasta" "\$kmer"
+      quast.py\
+        --eukaryote\
+        --gene-finding\
+        --conserved-genes-finding\
+        --large\
+        --min-contig 100\
+        --threads 2\
+        --output-dir "\${contig_dir}_quast_quality_assessment"\
+        "\${kmer}"
+    fi
   done
   """
 }
 
+/*
+ * Gather all QUAST reports and display them in a human-readable format
+ */
+process quastReport {
+  echo true
+
+  input:
+  path quast_result
+
+  script:
+  """
+  echo -e "\nAssembly quality assessment:"
+  echo "k-mer size\t# contigs\tLargest contig\tTotal length\tGC (%)\tN50\tN75 \
+    \tL50\tL75" > summarized_results.tsv
+  tail -n 1 "${quast_result}/transposed_report.tsv" |
+    awk -F '\t' '{ print \$1 "\t" \$14 "\t" \$15 "\t" \$16 "\t" \$17 "\t" \$18\
+    "\t" \$19 "\t" \$20 "\t" \$21 }' >>\
+    summarized_results.tsv
+  column -t -s \$'\t' < summarized_results.tsv
+  """
+}
+
+/*
+ * Uses SeqKit to display raw reads statistics
+ */
+process rawReadsStats {
+  echo true
+
+  input:
+  tuple val(name), path(read)
+
+  script:
+  """
+  echo -e "\nRaw reads sequence statistics:"
+  seqkit stats $read
+  """
+}
+
+/*
+ * Uses SeqKit to display trimmed reads statistics
+ */
+process trimmedReadsStats {
+  echo true
+
+  input:
+  tuple val(name), path(read)
+
+  script:
+  """
+  echo -e "Trimmed reads sequence statistics:"
+  seqkit stats $read
+  """
+}
+
 workflow {
+  // rawReadsStats(ch_rawReads)
   qualityControl(ch_rawReads)
   trimming(ch_rawReads)
+  // trimmedReadsStats(trimming.out.trimmedReads)
   assembly(trimming.out.trimmedReads, params.kmers)
   assemblyQualityAssessment(assembly.out.contigs)
+  quastReport(assemblyQualityAssessment.out)
 }
