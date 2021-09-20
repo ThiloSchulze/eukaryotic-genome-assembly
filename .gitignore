@@ -1,6 +1,7 @@
-.nextflow/*
+.nextflow/**
 .nextflow.log*
 .command.*
 example_data/**
 work/**
 assembly_out/**
+.vscode/**

@@ -60,20 +60,9 @@ are paired-ended, then you don't need to supply any additional options.
 
 ### Running this Pipeline
 
-Go to the folder where you downloaded this pipeline and `cd` into it's folder.
-For example:
-
-```bash
-$ cd ~/Downloads
-$ cd trimming
-$ ls
-bin           environment.yml  main.nf   nextflow.config  test_data
-CHANGELOG.md  LICENSE          Makefile  README.md
-```
-
-Running this pipeline with the `--help` option both tests whether it was
-installed correctly and it also gives you all of the options that you might
-want to tweak.
+Go to the folder where you downloaded this workflow and then use
+`cd eukaryotic-genome-assembly` to enter the base directory. From there you
+launch the pipeline like so:
 
 ```bash
 $ nextflow run . --help
@@ -84,13 +73,12 @@ $ nextflow run . --help
 Nextflow produces a lot of additional files which takes up space on your drive.
 These files are useful when running and troubleshooting the pipeline but may
 then safely be removed in our case, since everything you need is saved to the
-output directory. Run these commands _in the folder where you ran the pipeline_
-in order to remove unnecessary files:
+output directory. For this, we provide a GNU Makefile. Go to the workflow's
+base directory and enter the following command to remove unnecessary output
+files after a successful run:
 
 ```bash
-$ rm -f .nextflow.log*
-$ rm -rf .nextflow*
-$ rm -rf work
+$ make clean
 ```
 
 © Animal Evolution and Biodiversity 2021
