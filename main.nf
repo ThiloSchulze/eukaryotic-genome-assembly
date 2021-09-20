@@ -165,14 +165,15 @@ process trimming {
  */
 process assembly {
   publishDir "${params.output}/spades_assembly", mode: 'copy'
+  label 'big_mem'
 
   input:
   tuple val(name), path(trimmed_reads)
   val kmers
 
   output:
-  path "null_spades_out/*" optional true
-  path "null_spades_out/K*", type: 'dir', emit: 'contigs'
+  path "*" optional true
+  path "K*", type: 'dir', emit: 'contigs'
 
   script:
 
@@ -186,9 +187,11 @@ process assembly {
     -2 ${trimmed_reads[3]} \
     -s unpaired_reads.fq.gz \
     -k "$kmers_formatted" \
+    --threads ${task.cpus} \
+    --memory ${task.memory.toGiga()} \
     --careful \
     --cov-cutoff auto \
-    -o ${name}_spades_out
+    -o .
   """
 }
 
@@ -217,11 +220,9 @@ process assemblyQualityAssessment {
       ln -s "\${contig_dir}/final_contigs.fasta" "\$kmer"
       quast.py\
         --eukaryote\
-        --gene-finding\
-        --conserved-genes-finding\
         --large\
         --min-contig 100\
-        --threads 2\
+        --threads ${task.cpus}\
         --output-dir "\${contig_dir}_quast_quality_assessment"\
         "\${kmer}"
     fi
