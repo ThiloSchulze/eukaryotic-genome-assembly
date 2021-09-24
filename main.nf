@@ -100,7 +100,7 @@ if ( params.reads == null ) {
  * Read quality control using FastQC
  */
 process qualityControl {
-  publishDir "${params.output}/qualityControl_pre-trimming", mode: 'copy'
+  publishDir "${params.output}/raw_read_quality_control", mode: 'copy'
 
   input:
   tuple val(name), path(control)
@@ -165,7 +165,6 @@ process trimming {
  */
 process assembly {
   publishDir "${params.output}/spades_assembly", mode: 'copy'
-  label 'big_mem'
 
   input:
   tuple val(name), path(trimmed_reads)
