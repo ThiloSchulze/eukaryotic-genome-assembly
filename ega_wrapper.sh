@@ -74,6 +74,7 @@ batch_job() {
   local raw_reads_pattern="${3}"
   local dir_out="${4}"
   tee "${dir_out}/batch_job.sh" << EOF
+#!/bin/bash
 #SBATCH --job-name=$name
 #SBATCH --partition=medium
 #SBATCH --qos=long

@@ -165,6 +165,7 @@ process trimming {
  */
 process assembly {
   publishDir "${params.output}/spades_assembly", mode: 'copy'
+  label 'big_mem'
 
   input:
   tuple val(name), path(trimmed_reads)
