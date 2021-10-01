@@ -41,6 +41,12 @@ log.info"""
     --output            path to a directory which the results are written to
                         (default: $params.output)
 
+  Resource allocation:
+    --max_cpus          the number of threads to utilize (default: all threads)
+    --max_memory        max memory used by the assembler (default: all memory)
+    --max_time          max runtime of the assembler (default: $params.max_time)
+    --max_retries       maximum number of retries
+
   Quality control:
     --qc_adapters       path to adapters files, if any (default: $params.qc_adapters)
 
@@ -48,7 +54,7 @@ log.info"""
     --trim_min_length   discards reads shorter than this (default: $params.trim_min_length)
     --trim_quality      Phred score threshold for quality trimming (default: $params.trim_quality)
     --trim_adapter      adapter sequence to be trimmed (default: auto-detect)
-    --trim_phred64      use Phred+64 (i.e., Illumina 1.5) encoding for quality scores
+    --trim_phred64      use Phred+64 (=Illumina 1.5) encoding for quality scores
                         (default: Phred+33; Sanger/Illumina 1.8)
     --trim_forward_leading
                         cut off bases at the start of the forward reads or all
@@ -95,6 +101,22 @@ if ( params.reads == null ) {
 // // Check whether the provided path exists
 // def inputPath = new File(params.reads)
 // assert inputPath.exists() : "Provided reads, $params.reads, not found"
+
+// /*
+//  * Coverage estimation using GenomeScope
+//  */
+// process coverageEstimation {
+//   publishDir "${params.output}/coverage_estimation", mode: 'copy'
+//
+//   input:
+//
+//   output:
+//
+//   script:
+//   """
+//
+//   """
+// }
 
 /*
  * Read quality control using FastQC
