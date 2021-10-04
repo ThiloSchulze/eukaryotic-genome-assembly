@@ -13,6 +13,7 @@ export PS4='+ ${LINENO}:${FUNCNAME[0]:-}() '
 readonly ARG_COUNT="$#"
 readonly VERSION="0.1.0"
 readonly EGA_BIN="/usr/users/${USER}/pipelines/eukaryotic-genome-assembly"
+readonly TIMESTAMP=$( date +%Y-%m-%d_%H-%M-%S )
 basedir=''
 name=''
 outdir='ega_assembly_out'
@@ -94,10 +95,11 @@ module load anaconda3
 
 nextflow run '${EGA_BIN}'\\
   -profile cluster\\
+  -log '${dir_out}/${TIMESTAMP}_nextflow.log'\\
   -work-dir '${dir_out}/work'\\
   -resume\\
   --reads '${raw_reads_pattern}'\\
-  --max_memory 256.GB\\
+  --max_memory '256 GB'
 EOF
 }
 
