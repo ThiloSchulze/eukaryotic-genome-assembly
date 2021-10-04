@@ -106,7 +106,7 @@ if ( params.reads == null ) {
 //  * Coverage estimation using GenomeScope
 //  */
 // process coverageEstimation {
-//   publishDir "${params.output}/coverage_estimation", mode: 'copy'
+//   publishDir "${params.output}/coverage_estimation", mode: 'symlink'
 //
 //   input:
 //
@@ -122,7 +122,7 @@ if ( params.reads == null ) {
  * Read quality control using FastQC
  */
 process qualityControl {
-  publishDir "${params.output}/raw_read_quality_control", mode: 'copy'
+  publishDir "${params.output}/raw_read_quality_control", mode: 'symlink'
 
   input:
   tuple val(name), path(control)
@@ -147,7 +147,7 @@ process qualityControl {
  * adapters as well
  */
 process trimming {
-  publishDir "${params.output}/trimmed_reads", mode: 'copy'
+  publishDir "${params.output}/trimmed_reads", mode: 'symlink'
 
   input:
   tuple val(name), path(read)
@@ -186,7 +186,7 @@ process trimming {
  * De novo assembly using the SPAdes assembler
  */
 process assembly {
-  publishDir "${params.output}/spades_assembly", mode: 'copy'
+  publishDir "${params.output}/spades_assembly", mode: 'symlink'
   label 'big_mem'
 
   input:
@@ -221,7 +221,7 @@ process assembly {
  * Genome assembly quality assessment using QUAST
  */
 process assemblyQualityAssessment {
-  publishDir "${params.output}/quast_quality_assessment", mode: 'copy'
+  publishDir "${params.output}/quast_quality_assessment", mode: 'symlink'
 
   input:
   path contig_dirs
