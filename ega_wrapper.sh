@@ -94,7 +94,7 @@ module load nextflow
 module load anaconda3
 
 nextflow run '${EGA_BIN}'\\
-  -profile cluster\\
+  -profile cluster,singularity\\
   -log '${dir_out}/${TIMESTAMP}_nextflow.log'\\
   -work-dir '${dir_out}/work'\\
   -resume\\
