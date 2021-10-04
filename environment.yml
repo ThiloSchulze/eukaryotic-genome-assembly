@@ -13,3 +13,4 @@ dependencies:
   - bioconda::trim-galore=0.6.6
   - bioconda::quast=5.0.2
   - bioconda::spades=3.15.3
+  # - bioconda::genomescope2=2.0

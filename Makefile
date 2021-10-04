@@ -12,6 +12,7 @@ clean:
 	rm -f .nextflow.log*
 	rm -rf .nextflow*
 	rm -rf work
+	rm -rf assembly_out
 
 run:
 	install

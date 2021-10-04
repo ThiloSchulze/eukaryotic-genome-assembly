@@ -123,6 +123,7 @@ if ( params.reads == null ) {
  */
 process qualityControl {
   publishDir "${params.output}/raw_read_quality_control"
+  label 'medium'
 
   input:
   tuple val(name), path(control)
@@ -148,6 +149,7 @@ process qualityControl {
  */
 process trimming {
   publishDir "${params.output}/trimmed_reads"
+  label 'medium'
 
   input:
   tuple val(name), path(read)
@@ -222,6 +224,7 @@ process assembly {
  */
 process assemblyQualityAssessment {
   publishDir "${params.output}/quast_quality_assessment"
+  label 'medium'
 
   input:
   path contig_dirs
