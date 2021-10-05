@@ -123,7 +123,7 @@ if ( params.reads == null ) {
  */
 process qualityControl {
   publishDir "${params.output}/raw_read_quality_control"
-  label 'normal'
+  label 'fast'
 
   input:
   tuple val(name), path(control)
@@ -206,15 +206,16 @@ process assembly {
 
   """
   cat "${trimmed_reads[0]}" "${trimmed_reads[2]}" > unpaired_reads.fq.gz
-  spades.py \
-    -1 ${trimmed_reads[1]} \
-    -2 ${trimmed_reads[3]} \
-    -s unpaired_reads.fq.gz \
-    -k "$kmers_formatted" \
-    --threads ${task.cpus} \
-    --memory ${task.memory.toGiga()} \
-    --careful \
-    --cov-cutoff auto \
+  spades.py\
+    -1 ${trimmed_reads[1]}\
+    -2 ${trimmed_reads[3]}\
+    -s unpaired_reads.fq.gz\
+    -k "$kmers_formatted"\
+    --threads ${task.cpus}\
+    --memory ${task.memory.toGiga()}\
+    --careful\
+    --cov-cutoff auto\
+    --tmp-dir ./corrected/tmp\
     -o .
   """
 }
