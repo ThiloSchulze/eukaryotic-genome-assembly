@@ -91,15 +91,16 @@ batch_job() {
 
 module purge
 module load nextflow
-module load anaconda3
+module load singularity
 
-nextflow run '${EGA_BIN}'\\
+NXF_SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
+mkdir -p "$NXF_SINGULARITY_CACHEDIR"
+
+nextflow run "${EGA_BIN}"\\
   -profile cluster,singularity\\
-  -log '${dir_out}/${TIMESTAMP}_nextflow.log'\\
-  -work-dir '${dir_out}/work'\\
   -resume\\
-  --reads '${raw_reads_pattern}'\\
-  --max_memory '256 GB'
+  --reads "${raw_reads_pattern}"\\
+  --max_memory '256G'
 EOF
 }
 
