@@ -14,6 +14,7 @@ readonly ARG_COUNT="$#"
 readonly VERSION="0.1.0"
 readonly EGA_BIN="/usr/users/${USER}/pipelines/eukaryotic-genome-assembly"
 readonly TIMESTAMP=$( date +%Y-%m-%d_%H-%M-%S )
+readonly SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
 basedir=''
 name=''
 outdir='ega_assembly_out'
@@ -93,7 +94,6 @@ module purge
 module load nextflow
 module load singularity
 
-readonly SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
 export NXF_SINGULARITY_CACHEDIR="$SINGULARITY_CACHEDIR"
 mkdir -p "$SINGULARITY_CACHEDIR"
 
