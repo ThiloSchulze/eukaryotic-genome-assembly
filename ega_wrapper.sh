@@ -80,10 +80,10 @@ batch_job() {
 #SBATCH --partition=medium
 #SBATCH --qos=long
 #SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --ntasks=4
 #SBATCH --constraint=scratch2
 #SBATCH --time=3-00:00:00
-#SBATCH --mem=32G
+#SBATCH --mem=16G
 #SBATCH --output=${dir_out}/${name}_stdout.txt
 #SBATCH --error=${dir_out}/${name}_stderr.txt
 #SBATCH --mail-type=ALL
