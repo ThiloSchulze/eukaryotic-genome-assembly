@@ -93,8 +93,9 @@ module purge
 module load nextflow
 module load singularity
 
-export NXF_SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
-mkdir -p "$NXF_SINGULARITY_CACHEDIR"
+readonly SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
+export NXF_SINGULARITY_CACHEDIR="$SINGULARITY_CACHEDIR"
+mkdir -p "$SINGULARITY_CACHEDIR"
 
 nextflow run "${EGA_BIN}"\\
   -profile cluster,singularity\\
