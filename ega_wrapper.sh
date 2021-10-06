@@ -14,7 +14,6 @@ readonly ARG_COUNT="$#"
 readonly VERSION="0.1.0"
 readonly EGA_BIN="/usr/users/${USER}/pipelines/eukaryotic-genome-assembly"
 readonly TIMESTAMP=$( date +%Y-%m-%d_%H-%M-%S )
-readonly SINGULARITY_CACHEDIR="${dir_out}/singularity_cachedir"
 basedir=''
 name=''
 outdir='ega_assembly_out'
@@ -75,6 +74,7 @@ batch_job() {
   local basedir="${2}"
   local raw_reads_pattern="${3}"
   local dir_out="${4}"
+  local singularity_cachedir="${dir_out}/singularity_cachedir"
   tee "${dir_out}/batch_job.sh" << EOF
 #!/bin/bash
 #SBATCH --job-name=$name
@@ -94,8 +94,8 @@ module purge
 module load nextflow
 module load singularity
 
-export NXF_SINGULARITY_CACHEDIR="$SINGULARITY_CACHEDIR"
-mkdir -p "$SINGULARITY_CACHEDIR"
+export NXF_SINGULARITY_CACHEDIR="$singularity_cachedir"
+mkdir -p "$singularity_cachedir"
 
 nextflow run "${EGA_BIN}"\\
   -profile cluster,singularity\\
