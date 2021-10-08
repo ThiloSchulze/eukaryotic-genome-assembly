@@ -102,6 +102,11 @@ if ( params.reads == null ) {
 // def inputPath = new File(params.reads)
 // assert inputPath.exists() : "Provided reads, $params.reads, not found"
 
+def maxMemoryType = params.max_memory.getClass()
+assert maxMemoryType == nextflow.util.MemoryUnit : "Maximum memory, \
+$params.max_memory, not a valid memory unit. Expected nextflow.util.MemoryUnit \
+but got $maxMemoryType"
+
 // /*
 //  * Coverage estimation using GenomeScope
 //  */
