@@ -100,8 +100,7 @@ mkdir -p "$singularity_cachedir"
 nextflow run "${EGA_BIN}"\\
   -profile cluster,singularity\\
   -resume\\
-  --reads "${raw_reads_pattern}"\\
-  --max_memory 256.GB
+  --reads "${raw_reads_pattern}"
 EOF
 }
 
