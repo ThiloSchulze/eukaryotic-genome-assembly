@@ -1,10 +1,9 @@
 Eukaryotic Genome Assembly Pipeline
 -----------------------------------
 
-> **Note:** This pipeline is currently under construction and contain unfinished parts 🚧.
-
-This is a pipeline for performing _de novo_ whole genome assembly on short read sequences
-of eukaryotic origin. Here is a brief summary of what is being executed:
+This pipeline performs raw- and trimmed read quality control, adapter trimming,
+assembly, and assembly quality assessment on short read sequence data of
+eukaryotic origin. Here is a brief list of what is being executed:
 
 1. Raw reads quality control ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter trimming ([Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
@@ -46,17 +45,16 @@ To download this pipeline, go to the folder where you wish to store this
 pipeline in and then run the following:
 
 ```
-$ git clone https://github.com/Animal-Evolution-and-Biodiversity/trimming
+$ git clone https://github.com/ThiloSchulze/eukaryotic-genome-assembly
 ```
 
 ### Formatting the Input Data
 
 The input data may be single-end or paired-end reads. Paired-end reads is the
-default. These reads should be in the FASTQ format, either compressed or
-uncompressed. The resulting reads are always in a compressed format (`.gzip`).
-
-If your reads are single-ended, use the `--single-end` option. If your reads
-are paired-ended, then you don't need to supply any additional options.
+default. If your reads are single-ended, use the `--single-end` option. If your
+reads are paired-ended, then you don't need to supply any additional options.
+These reads should be in the FASTQ format, either compressed or uncompressed.
+The resulting reads are always in a compressed format (`.gzip`).
 
 ### Running this Pipeline
 
@@ -66,6 +64,71 @@ launch the pipeline like so:
 
 ```bash
 $ nextflow run . --help
+```
+
+#### In a Linux cluster environment
+
+If you intend to run this pipeline on your local cluster, you may consider using
+our wrapper script (`ega_wrapper.sh`) for automatically generating the initial
+Nextflow script. This currently only works for paired-end reads.
+
+Your raw reads should be contained within a directory called `raw_reads`. The
+program will automatically detect the difference between the forward and reverse
+file.
+
+For example, in a directory structure like this:
+
+```
+DC-1_Perinereis_nuntia
+└── raw_reads
+    ├── DC-1_S0_L000_R1_001.fastq.gz
+    └── DC-1_S0_L000_R2_001.fastq.gz
+```
+
+The following files are created:
+
+```
+DC-1_Perinereis_nuntia
+├── ega_assembly_out
+│   └── batch_job.sh
+└── raw_reads
+    ├── DC-1_S0_L000_R1_001.fastq.gz
+    └── DC-1_S0_L000_R2_001.fastq.gz
+```
+
+To launch this job, you run `batch_job.sh`. Note that this file does not launch
+the assembly jobs and such, these are controlled by the Nextflow configuration
+file and are generated automatically. This is just to generate the batch job
+that launches the Nextflow pipeline itself.
+
+Here is an example of what such file might look like:
+
+```
+#!/bin/bash
+#SBATCH --job-name=DC-1_Per
+#SBATCH --partition=medium
+#SBATCH --qos=long
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --constraint=scratch2
+#SBATCH --time=3-00:00:00
+#SBATCH --mem=16G
+#SBATCH --output=/scratch2/thalen/DC-1_Perinereis_nuntia/ega_assembly_out/DC-1_Per_stdout.txt
+#SBATCH --error=/scratch2/thalen/DC-1_Perinereis_nuntia/ega_assembly_out/DC-1_Per_stderr.txt
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=alexander.waehling@gmx.de
+
+module purge
+module load nextflow
+module load singularity
+
+export NXF_SINGULARITY_CACHEDIR="/scratch2/thalen/DC-1_Perinereis_nuntia/ega_assembly_out/singularity_cachedir"
+mkdir -p "/scratch2/thalen/DC-1_Perinereis_nuntia/ega_assembly_out/singularity_cachedir"
+
+nextflow run "/usr/users/thalen/pipelines/eukaryotic-genome-assembly"\
+  -profile cluster,singularity\
+  -resume\
+  --reads "/scratch2/thalen/DC-1_Perinereis_nuntia/raw_reads/DC-1_S0_L000_R{1,2}_001\.fastq\.gz"
 ```
 
 ### Cleaning Up
