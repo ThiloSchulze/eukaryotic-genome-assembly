@@ -69,6 +69,22 @@ launch it like so:
 nextflow run . -profile cluster,singularity
 ```
 
+### Using a custom configuration
+
+The default configuration is stored in the `nextflow.config`. We encourage you
+to replace the default values with whatever is appropriate for your needs. The
+easiest way to do this is by creating a custom file. We have provided an
+example of such a file in the `configs` directory. To use this configuration,
+simply run this pipeline with the following options:
+
+```
+nextflow run . -config 'configs/example.config'
+```
+
+You could make a copy of this configuration and then make your changes from
+there. Then just replace `example.config` with whatever name you chose for your
+custom file.
+
 #### In a Linux cluster environment
 
 If you intend to run this pipeline on your local cluster, you may consider using
