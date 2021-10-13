@@ -13,31 +13,9 @@ eukaryotic origin. Here is a brief list of what is being executed:
 
 ### Installing Nextflow
 
-> **Note:** If you already have Nextflow installed, then you may skip to the
-> next section.
-
-The workflow manager [Nextflow](https://www.nextflow.io/) is required to run
-this pipeline. It requires Bash 3.2 (or later) and Java 8 (or later, up to 15)
-to be installed. To download and install Nextflow into the current directory,
-run the following in your terminal.
-
-```bash
-$ curl -s https://get.nextflow.io | bash
-```
-
-Then, make the `nextflow` binary executable by running `chmod +x`:
-
-```bash
-$ chmod +x nextflow
-```
-
-### Installing Anaconda
-
-> **Note:** If you already have Anaconda installed, then you may skip to the
-> next section.
-
-Download Anaconda [from here](https://www.anaconda.com/products/individual)
-(I recommend the command-line installer) and run the installer.
+[Nextflow](https://www.nextflow.io/) is required to run this pipeline. For
+installing Nextflow, simply follow the [installation instructions](https://www.nextflow.io/docs/latest/getstarted.html#installation)
+in their documentation.
 
 ### Downloading this Pipeline
 
@@ -64,6 +42,31 @@ launch the pipeline like so:
 
 ```bash
 $ nextflow run . --help
+```
+
+### Choosing a profile
+
+All programming versioning and installations are handled by the pipeline itself.
+We provide the following profiles for managing these installations:
+
+1. `conda` ([Anaconda](https://www.anaconda.com))
+2. `docker` ([Docker](https://www.docker.com/))
+3. `singularity` ([Singularity](https://sylabs.io/))
+4. `cluster` ([Slurm](https://slurm.schedmd.com/documentation.html))
+
+For example, to run this pipeline using Anaconda, launch the pipeline with
+the following flag:
+
+```
+nextflow run . -profile conda
+```
+
+You can provide multiple profiles by separating the profiles with a comma (`,`).
+To run the pipeline with the profiles `cluster` and `singularity` enabled,
+launch it like so:
+
+```
+nextflow run . -profile cluster,singularity
 ```
 
 #### In a Linux cluster environment
