@@ -208,9 +208,6 @@ process assembly {
 
   // Make list of kmers SPAdes-compatible ([a, b, c] -> "a,b,c")
   kmers_formatted = kmers.toString().replaceAll("[ \\[\\]]", "")
-  continue_flag = ''
-  if ( task.attempt >= 2 )
-    continue_flag = '--continue'
 
   """
   cat "${trimmed_reads[0]}" "${trimmed_reads[2]}" > unpaired_reads.fq.gz
@@ -224,7 +221,7 @@ process assembly {
     --careful\
     --cov-cutoff auto\
     --tmp-dir ./corrected/tmp\
-    -o . $continue_flag
+    -o .
   """
 }
 
