@@ -207,7 +207,10 @@ process assembly {
   script:
 
   // Make list of kmers SPAdes-compatible ([a, b, c] -> "a,b,c")
-  kmers_formatted = kmers.toString().replaceAll("[ \\[\\]]", "")
+  kmersFormatted = kmers.toString().replaceAll("[ \\[\\]]", "")
+  errorCorrectionString = ""
+  if ( !params.read_error_correction )
+    errorCorrectionString = "--only-assembler"
 
   """
   cat "${trimmed_reads[0]}" "${trimmed_reads[2]}" > unpaired_reads.fq.gz
@@ -215,13 +218,13 @@ process assembly {
     -1 ${trimmed_reads[1]}\
     -2 ${trimmed_reads[3]}\
     -s unpaired_reads.fq.gz\
-    -k "$kmers_formatted"\
+    -k "$kmersFormatted"\
     --threads ${task.cpus}\
     --memory ${task.memory.toGiga()}\
     --careful\
     --cov-cutoff auto\
     --tmp-dir ./corrected/tmp\
-    -o .
+    -o . $errorCorrectionString
   """
 }
 
