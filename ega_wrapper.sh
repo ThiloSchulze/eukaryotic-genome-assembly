@@ -14,11 +14,13 @@ readonly ARG_COUNT="$#"
 readonly VERSION="0.1.0"
 readonly EGA_BIN="/usr/users/${USER}/pipelines/eukaryotic-genome-assembly"
 readonly TIMESTAMP=$( date +%Y-%m-%d_%H-%M-%S )
+readonly MEMORY='16G'
+readonly CPUS=4
 basedir=''
 name=''
 outdir='ega_assembly_out'
 reads='raw_reads'
-mail='alexander.waehling@gmx.de'
+mail=''
 
 usage() { printf "%s" "\
 usage:
@@ -75,20 +77,24 @@ batch_job() {
   local raw_reads_pattern="${3}"
   local dir_out="${4}"
   local singularity_cachedir="${dir_out}/singularity_cachedir"
+  mail_str=""
+  if [[ -n "$mail" ]]
+  then
+    mail_str+=$'\n#SBATCH --mail-type=ALL\n#SBATCH --mail-user='
+    mail_str+="$mail"
+  fi
   tee "${dir_out}/batch_job.sh" << EOF
 #!/bin/bash
 #SBATCH --job-name=$name
 #SBATCH --partition=medium
 #SBATCH --qos=long
 #SBATCH --nodes=1
-#SBATCH --ntasks=4
+#SBATCH --ntasks=$CPUS
 #SBATCH --constraint=scratch2
 #SBATCH --time=3-00:00:00
-#SBATCH --mem=16G
+#SBATCH --mem=$MEMORY
 #SBATCH --output=${dir_out}/${name}_stdout.txt
-#SBATCH --error=${dir_out}/${name}_stderr.txt
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=$mail
+#SBATCH --error=${dir_out}/${name}_stderr.txt${mail_str}
 
 module purge
 module load nextflow
