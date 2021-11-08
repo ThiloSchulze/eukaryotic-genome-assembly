@@ -13,7 +13,7 @@ export PS4='+ ${LINENO}:${FUNCNAME[0]:-}() '
 readonly ARG_COUNT="$#"
 readonly VERSION="0.1.0"
 readonly EGA_BIN="/usr/users/${USER}/pipelines/eukaryotic-genome-assembly"
-readonly MAX_TIME=2-00:00:00
+readonly MAX_TIME='3-00:00:00'
 readonly TIMESTAMP=$( date +%Y-%m-%d_%H-%M-%S )
 readonly MEMORY='16G'
 readonly CPUS=4
@@ -89,6 +89,7 @@ batch_job() {
 #SBATCH --job-name=$name
 #SBATCH --partition=medium
 #SBATCH --nodes=1
+#SBATCH --qos=long
 #SBATCH --ntasks=$CPUS
 #SBATCH --constraint=scratch2
 #SBATCH --time=$MAX_TIME
