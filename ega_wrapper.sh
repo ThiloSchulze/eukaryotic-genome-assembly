@@ -39,7 +39,7 @@ options:
                    email address (default: 'alexander.waehling@gmx.de')
   -n, --name       give your batch job a custom name (default: first 8 letters
                    of \`DIRECTORY\`')
-  -o, --outdir     output directory where (default: '$outdir')
+  -o, --outdir     write the output to this directory (default: '$outdir')
   -r, --reads      name of the subdirectory where raw reads are located
                    (default: '$reads')
 
@@ -171,16 +171,16 @@ while [[ $# -gt 0 ]]; do
   key="$1"
 
   case $key in
-    -c | --config)
-      config_file="$2"
-      shift # past argument
-      shift # past value
-      ;;
-    -h | --help)
+   -h | --help)
       usage
       ;;
     -v | --version)
       version_info
+      ;;
+    -c | --config)
+      config_file="$2"
+      shift # past argument
+      shift # past value
       ;;
     -m | --mail)
       mail="$2"
@@ -194,6 +194,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -r | --reads)
       reads="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -o | --outdir)
+      outdir="$2"
       shift # past argument
       shift # past value
       ;;

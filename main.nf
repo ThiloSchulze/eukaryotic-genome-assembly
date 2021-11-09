@@ -218,7 +218,6 @@ process assembly {
     -k "${kmersFormatted}"\
     --threads ${task.cpus}\
     --memory ${task.memory.toGiga()}\
-    --careful\
     --cov-cutoff auto\
     --tmp-dir ./corrected/tmp\
     -o .
