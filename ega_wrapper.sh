@@ -216,7 +216,7 @@ main() {
   [[ ARG_COUNT -lt 1 ]] && usage
   [[ -z "$basedir" ]] && error "missing mandatory argument DIRECTORY"
   [[ ! -d "$basedir" ]] && error "provided directory not found: $basedir"
-  [[ ! -f "$config_file" ]] && error "provided configuration not found: $config_file"
+  [[ -n "$config_file" && ! -f "$config_file" ]] && error "provided configuration not found: $config_file"
   basedir_abs=$( realpath "$basedir" )
   raw_reads_dir="${basedir_abs}/${reads}"
   [[ ! -d "$raw_reads_dir" ]] && error "missing subdirectory 'raw_reads' in \
