@@ -21,6 +21,7 @@ basedir=''
 name=''
 outdir='ega_assembly_out'
 reads='raw_reads'
+config_file=''
 mail=''
 
 usage() { printf "%s" "\
@@ -31,6 +32,7 @@ description:
   Generate a batch job for the eukaryotic genome assembly (EGA) pipeline.
 
 options:
+  -c, --config     path to a custom configuration profile
   -h, --help       display this help message and exit
   -v, --version    display the version number and exit
   -m, --mail       report change of job status (started, finished, etc.) to this
@@ -84,16 +86,23 @@ batch_job() {
     mail_str+=$'\n#SBATCH --mail-type=ALL\n#SBATCH --mail-user='
     mail_str+="$mail"
   fi
+  config_str=""
+  if [[ -n "$config_file" ]]
+  then
+    config_str+=$'\n  -config '
+    config_str+="$config_file\\"
+    config_str+="$mail"
+  fi
   tee "${dir_out}/batch_job.sh" << EOF
 #!/bin/bash
 #SBATCH --job-name=$name
 #SBATCH --partition=medium
 #SBATCH --nodes=1
 #SBATCH --qos=long
-#SBATCH --ntasks=$CPUS
+#SBATCH --ntasks=${CPUS}
 #SBATCH --constraint=scratch2
-#SBATCH --time=$MAX_TIME
-#SBATCH --mem=$MEMORY
+#SBATCH --time=${MAX_TIME}
+#SBATCH --mem=${MEMORY}
 #SBATCH --output=${dir_out}/${name}_stdout.txt
 #SBATCH --error=${dir_out}/${name}_stderr.txt${mail_str}
 
@@ -106,7 +115,7 @@ mkdir -p "$singularity_cachedir"
 
 nextflow run "${EGA_BIN}"\\
   -profile cluster,singularity\\
-  -resume\\
+  -resume\\${config_str}
   --reads "${raw_reads_pattern}"
 EOF
 }
@@ -162,6 +171,11 @@ while [[ $# -gt 0 ]]; do
   key="$1"
 
   case $key in
+    -c | --config)
+      config_file="$2"
+      shift # past argument
+      shift # past value
+      ;;
     -h | --help)
       usage
       ;;
@@ -202,6 +216,7 @@ main() {
   [[ ARG_COUNT -lt 1 ]] && usage
   [[ -z "$basedir" ]] && error "missing mandatory argument DIRECTORY"
   [[ ! -d "$basedir" ]] && error "provided directory not found: $basedir"
+  [[ ! -f "$config_file" ]] && error "provided configuration not found: $config_file"
   basedir_abs=$( realpath "$basedir" )
   raw_reads_dir="${basedir_abs}/${reads}"
   [[ ! -d "$raw_reads_dir" ]] && error "missing subdirectory 'raw_reads' in \
