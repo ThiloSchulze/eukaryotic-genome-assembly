@@ -127,7 +127,7 @@ but got $maxMemoryType"
  * Read quality control using FastQC
  */
 process qualityControl {
-  publishDir "${params.output}/raw_read_quality_control"
+  publishDir "${params.output}/raw_reads_quality_control"
   label 'fast'
 
   input:
