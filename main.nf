@@ -47,6 +47,10 @@ log.info"""
     --max_time          max runtime of the assembler (default: $params.max_time)
     --max_retries       maximum number of retries
 
+  Assembly settings:
+    --kmers             a list of K-mer sizes to use for the assembly (default: $params.kmers)
+    --meta              when true, the input data is a metagenomic sample (default: $params.kmers)
+
   Quality control:
     --qc_adapters       path to adapters files, if any (default: $params.qc_adapters)
 
@@ -208,6 +212,9 @@ process assembly {
 
   // Make list of kmers SPAdes-compatible ([a, b, c] -> "a,b,c")
   kmersFormatted = kmers.toString().replaceAll("[ \\[\\]]", "")
+  additionalSpadesFlags = ""
+  if ( params.meta )
+    additionalSpadesFlags += "--meta \\\n"
 
   """
   cat "${trimmed_reads[0]}" "${trimmed_reads[2]}" > unpaired_reads.fq.gz
@@ -218,9 +225,8 @@ process assembly {
     -k "${kmersFormatted}"\
     --threads ${task.cpus}\
     --memory ${task.memory.toGiga()}\
-    --cov-cutoff auto\
     --tmp-dir ./corrected/tmp\
-    -o .
+    ${additionalSpadesFlags}-o .
   """
 }
 
