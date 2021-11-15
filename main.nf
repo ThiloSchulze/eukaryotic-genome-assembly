@@ -49,7 +49,7 @@ log.info"""
 
   Assembly settings:
     --kmers             a list of K-mer sizes to use for the assembly (default: $params.kmers)
-    --meta              when true, the input data is a metagenomic sample (default: $params.kmers)
+    --meta              when set, assume metagenomic reads (default: $params.kmers)
 
   Quality control:
     --qc_adapters       path to adapters files, if any (default: $params.qc_adapters)
@@ -86,7 +86,6 @@ log.info"""
   Miscellaneous:
     --help              display this help message and exit
     --version           display this pipeline's version number and exit
-
   """.stripIndent()
 }
 
