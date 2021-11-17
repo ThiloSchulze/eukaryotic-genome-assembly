@@ -91,7 +91,6 @@ batch_job() {
   then
     config_str+=$'\n  -config '
     config_str+="$config_file\\"
-    config_str+="$mail"
   fi
   tee "${dir_out}/batch_job.sh" << EOF
 #!/bin/bash
