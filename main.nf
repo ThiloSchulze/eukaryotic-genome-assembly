@@ -49,7 +49,7 @@ log.info"""
 
   Assembly settings:
     --kmers             a list of K-mer sizes to use for the assembly (default: $params.kmers)
-    --meta              when set, assume metagenomic reads (default: $params.kmers)
+    --meta              when set, assume metagenomic reads (default: $params.meta)
 
   Quality control:
     --qc_adapters       path to adapters files, if any (default: $params.qc_adapters)
