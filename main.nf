@@ -274,6 +274,9 @@ process quastReport {
   input:
   path quast_result
 
+  output:
+  path "quast_short.tsv"
+
   script:
   """
   echo -e "\nAssembly quality assessment:"
@@ -284,47 +287,88 @@ process quastReport {
     "\t" \$19 "\t" \$20 "\t" \$21 }' >>\
     summarized_results.tsv
   column -t -s \$'\t' < summarized_results.tsv
+  tail -n +2 < summarized_results.tsv > quast_short.tsv
   """
 }
 
 /*
- * Uses SeqKit to display raw reads statistics
+ * Uses SeqKit to obtain basic statistics of raw reads
  */
-process rawReadsStats {
+process rawReadStats {
+  publishDir "${params.output}"
   echo true
 
   input:
   tuple val(name), path(read)
 
+  output:
+  path "raw_read_stats.tsv"
+
   script:
   """
-  echo -e "\nRaw reads sequence statistics:"
-  seqkit stats $read
+  seqkit stats --tabular $read >> raw_read_stats.tsv
   """
 }
 
 /*
- * Uses SeqKit to display trimmed reads statistics
+ * Uses SeqKit to obtain basic statistics of trimmmed reads
  */
-process trimmedReadsStats {
+process trimmedReadStats {
+  publishDir "${params.output}"
   echo true
 
   input:
   tuple val(name), path(read)
 
+  output:
+  path "trimmed_read_stats.tsv"
+
   script:
   """
-  echo -e "Trimmed reads sequence statistics:"
-  seqkit stats $read
+  seqkit stats --tabular $read >> trimmed_read_stats.tsv
+  """
+}
+
+/*
+ * Summarize all sequence statistics into a single report.
+ */
+process summarizeSeqStats {
+  publishDir "${params.output}"
+
+  input:
+  path rawReadSeqStats
+  path quastStats
+
+  output:
+  path "seq_stats_summary.tsv"
+
+  script:
+  """
+  echo "files\traw_reads_num_seqs\traw_reads_sum_len\traw_reads_min_len\t\
+raw_reads_avg_len\traw_reads_max_len\tassembly_kmer_size\tassembly_contigs\t\
+assembly_largest_contigs\tassembly_len\tassembly_percent_gc\tassembly_n50\t\
+assembly_n75\tassembly_l50\tassembly_l75"\
+> seq_stats_summary.tsv
+
+  raw_read_stats=\$(\
+    tail -n +2 < "$rawReadSeqStats" |\
+    awk '{ (length(names) == 0) ? names=\$1 : names=names "," \$1 ; num_seqs\
+      += \$4; sum_len += \$5; min_len += \$6; avg_len = \$7; max_len = \$8 }\
+      END { print names "\t" num_seqs "\t" sum_len "\t" min_len "\t" avg_len\
+      "\t" max_len}'\
+  )
+
+  echo "\${raw_read_stats}\t\$( cat "$quastStats" )" >> seq_stats_summary.tsv
   """
 }
 
 workflow {
-  // rawReadsStats(ch_rawReads)
+  rawReadStats(ch_rawReads)
   qualityControl(ch_rawReads)
   trimming(ch_rawReads)
-  // trimmedReadsStats(trimming.out.trimmedReads)
+  trimmedReadStats(trimming.out.trimmedReads)
   assembly(trimming.out.trimmedReads, params.kmers)
   assemblyQualityAssessment(assembly.out.contigs)
   quastReport(assemblyQualityAssessment.out)
+  summarizeSeqStats(rawReadStats.out, quastReport.out)
 }
