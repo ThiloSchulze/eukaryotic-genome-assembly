@@ -51,9 +51,6 @@ log.info"""
     --kmers             a list of K-mer sizes to use for the assembly (default: $params.kmers)
     --meta              when set, assume metagenomic reads (default: $params.meta)
 
-  Quality control:
-    --qc_adapters       path to adapters files, if any (default: $params.qc_adapters)
-
   Trimming (Trim Galore!):
     --trim_min_length   discards reads shorter than this (default: $params.trim_min_length)
     --trim_quality      Phred score threshold for quality trimming (default: $params.trim_quality)
@@ -76,12 +73,6 @@ log.info"""
                         remove all bases past this position
                         cut off bases at the end of the forward reads or all
                         reads if single-end reads (default: $params.trim_forward_trailing)
-    --trim_leading_cutoff
-                        INSTEAD of trimming, remove all bases past this position
-                        (default: '$params.trim_leading_cutoff')
-    --trim_trailing_cutoff
-                        INSTEAD of trimming, remove all bases such that there
-                        are this many bases from the 3' end (default: '$params.trim_trailing_cutoff')
 
   Miscellaneous:
     --help              display this help message and exit
