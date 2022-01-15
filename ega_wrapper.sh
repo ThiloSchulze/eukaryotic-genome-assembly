@@ -98,7 +98,8 @@ batch_job() {
 #SBATCH --partition=medium
 #SBATCH --nodes=1
 #SBATCH --qos=long
-#SBATCH --ntasks=${CPUS}
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=${CPUS}
 #SBATCH --constraint=scratch2
 #SBATCH --time=${MAX_TIME}
 #SBATCH --mem=${MEMORY}
