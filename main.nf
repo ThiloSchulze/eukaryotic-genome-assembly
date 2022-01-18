@@ -353,6 +353,74 @@ assembly_n75\tassembly_l50\tassembly_l75"\
   """
 }
 
+/*
+ * Extract the mitochondrial genome from the assembly
+ */
+process extractMitogenome {
+    publishDir "${params.output}/$params.job_name/host_assembly", mode: 'copy'
+
+    label 'normal'
+
+    // Name of read files
+    tag "$params.job_name"
+
+    input:
+    // A tuple containing the name of the raw/trimmed read files and the contigs assembled before
+    tuple val(name), path(host_assembled)
+
+    output:
+    // The process outputs a tuple with the reads name and a .fa file containing all the contigs belonging to the host mitogenome
+    tuple val(name), path('mitogenome.fa'), emit: host_filtered
+    tuple val(name), path('mitogenome_candidates*')
+
+    when:
+    // This process is only executed if the endosymbont only mode is not selected
+    ! params.endosymbiont_only
+
+    script:
+    // Script description:
+    // 1. Create empty files for intermediate storage
+    // 2. Create a blast database from a sequence for the cox1 gene (mitogenome exclusive gene)
+    // 3. Iterate from 11 to 25
+    //     3.1. Concatenate the previous found reads to prev_seqid.txt
+    //     3.2. Blastn search with word size determined by iteration number, using de novo assembled reads as query
+    //     3.3. Determined seqids are made unique and cat into unique_seqid.txt
+    //     3.4. If the unique_seqid.txt is empty -> grep contigs based on previously found seqids by bfg -> break iteration
+    //     3.5. If the unique_seqid.txt has 1 entry -> grep corrisponding contig by bfg -> break iteration
+    """
+    touch mitogenome.fa
+    touch prev_seqid.txt
+    touch unique_seqid.txt
+    touch possible_mitogenomes.fa
+    cat $host_assembled | bfg "cov_[1-9][0-9][0-9]{1,}\\.[0-9]+" > possible_mitogenomes.fa
+    makeblastdb -in ${params.mitogenome_bait} -title cox1 -parse_seqids -dbtype nucl -hash_index -out db
+    echo "blastdb created"
+    for i in {${params.min_blast_wordsize}..${params.max_blast_wordsize}..1}
+      do
+        echo "starting iteration with word size \$i"
+        cat unique_seqid.txt > prev_seqid.txt
+        blastn -query possible_mitogenomes.fa -db db -outfmt "10 qseqid" -word_size \$i > seqid.txt
+        echo "blastn complete"
+        cat -n seqid.txt | sort -uk2 | sort -nk1 | cut -f2- | cat > unique_seqid.txt
+        echo "made seqids unique"
+        cat possible_mitogenomes.fa | bfg -f unique_seqid.txt > "mitogenome_candidates_wordsize_\$i.fa"
+        if [[ \$(wc -l unique_seqid.txt) = "0 unique_seqid.txt" ]];
+        then
+          cat possible_mitogenomes.fa | bfg -f prev_seqid.txt > mitogenome.fa
+          echo "multiple possible mitogenomes found"
+          break
+        fi
+        if [[ \$(wc -l unique_seqid.txt) = "1 unique_seqid.txt" ]];
+        then
+          cat possible_mitogenomes.fa | bfg -f unique_seqid.txt > mitogenome.fa
+          echo "mitogenome found"
+          break
+        fi
+      done
+    echo "process successful"
+    """
+}
+
 workflow {
   rawReadStats(ch_rawReads)
   qualityControl(ch_rawReads)
