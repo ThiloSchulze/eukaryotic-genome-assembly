@@ -422,12 +422,12 @@ process extractMitogenome {
 }
 
 workflow {
-  rawReadStats(ch_rawReads)
+  // rawReadStats(ch_rawReads)
   qualityControl(ch_rawReads)
   trimming(ch_rawReads)
   trimmedReadStats(trimming.out.trimmedReads)
   assembly(trimming.out.trimmedReads, params.kmers)
   assemblyQualityAssessment(assembly.out.contigs)
   quastReport(assemblyQualityAssessment.out)
-  summarizeSeqStats(rawReadStats.out, quastReport.out)
+  // summarizeSeqStats(rawReadStats.out, quastReport.out)
 }
