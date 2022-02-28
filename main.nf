@@ -213,7 +213,6 @@ process assembly {
     -2 ${trimmed_reads[3]}\
     -s unpaired_reads.fq.gz\
     -k "${kmersFormatted}"\
-    --only-assembler\
     --threads ${task.cpus}\
     --memory ${task.memory.toGiga()}\
     --tmp-dir ./corrected/tmp\
